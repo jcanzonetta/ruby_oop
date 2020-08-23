@@ -40,7 +40,6 @@ module RenderBoard
         end
 
         puts nil
-        p @board
     end
 
     def hint      
@@ -80,18 +79,58 @@ class Round
         until @game_over == true do
             self.place_piece(self.get_play, @next_player.x_o)
             @next_player == @player1 ? @next_player = @player2 : @next_player = @player1
-
+            self.test_for_winner
+            self.test_for_tie
         end
 
         
     end
 
-    # will check for incorrect inputs in the future
+    def test_for_winner
+        #check rows and columsn for a winner
+        for i in 0..2 do
+            if (@board[i][0] == @board[i][1] && @board[i][1] == @board[i][2]) && @board[i][0] != 0 # Check rows for a winner.
+                return declare_winner(@board[i][0])
+            elsif (@board[0][i] == @board[1][i] && @board[1][i] == @board[2][i]) && @board[0][i] != 0 # Check columns for a winner. I could combine this into the if statement above, but I'm separating them for readibility.
+                return declare_winner(@board[0][i])
+            end
+        end
+
+        if ((@board[0][0] == @board[1][1] && @board[1][1] == @board[2][2]) || (@board[0][2] == @board[1][1] && @board[1][1] == @board[2][0])) && @board[1][1] != 0
+            return declare_winner(@board[1][1])
+        end
+    end
+
+    def declare_winner(x_or_o_int)     
+        X_O_CONVERSION[@player1.x_o] == x_or_o_int ? winner = @player1 : winner = @player2
+        puts "#{winner.name} wins!"
+        @game_over = true
+    end
+
+    def test_for_tie
+        if @game_over == true
+            return nil
+        end
+
+
+        @board.each do |row|
+            row.each do |square|
+                if square == 0
+                    return @game_over = false
+                end
+            end
+        end
+        puts "It's a tie!"
+        return @game_over = true
+    end
+
+
     def get_play
-        puts "#{@next_player.name}'s turn."
+        print "#{@next_player.name}'s turn: "
         
         play = gets.chomp.upcase
-        
+        puts nil
+
         loop do
                  
             if RenderBoard::GRID_VALUES[play]
@@ -108,10 +147,23 @@ class Round
     
 
     def place_piece(coordinate, piece)
-        i = coordinate[0]
-        j = coordinate[1]
+        
 
-        @board[i][j] = X_O_CONVERSION[piece]
+        loop do
+            i = coordinate[0]
+            j = coordinate[1]
+        
+
+            if @board[i][j] == 0
+                @board[i][j] = X_O_CONVERSION[piece]
+                break
+            end
+
+            puts "That spot is taken."
+            coordinate = self.get_play
+
+        end
+
         self.render
     end
 
