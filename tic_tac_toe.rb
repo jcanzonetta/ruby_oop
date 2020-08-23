@@ -60,8 +60,8 @@ end
 class Round
   include RenderBoard
 
-  def initialize(board, player1, player2)
-    @board = board
+  def initialize(player1, player2)
+    @board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
     @player1 = player1
     @player2 = player2
     @next_player = @player1
@@ -84,7 +84,7 @@ class Round
       new_game = gets.chomp.downcase
 
       if new_game == 'y' || new_game == 'yes'
-        game = Game.new
+        round = Round.new(@player1, @player2)
         break
       elsif new_game == 'n' || new_game == 'no'
         break
@@ -166,19 +166,14 @@ end
 class Game
   attr_reader :player1, :player2
 
-  include RenderBoard
-
   def initialize
-    @board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-
     puts "\nTic-Tac-Toe! - A Ruby project by Justin Canzoentta \n\n"
-    render
     @player1 = Player1.new
     @player2 = Player2.new(@player1.x_o)
 
     announce
 
-    @round = Round.new(@board, @player1, @player2)
+    @round = Round.new(@player1, @player2)
   end
 
   def announce
