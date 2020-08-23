@@ -84,9 +84,18 @@ class Round
       new_game = gets.chomp.downcase
 
       if new_game == 'y' || new_game == 'yes'
-        round = Round.new(@player1, @player2)
+        round = Round.new(@player2, @player1)
         break
       elsif new_game == 'n' || new_game == 'no'
+        puts "#{player1.name} #{player1.wins} : #{player2.wins} #{player2.name}"
+        
+        if player1.wins > player2.wins
+            print "#{player1.name} wins!"
+        elsif player2.wins > player1.wins
+            print "#{player2.name} wins!"
+        else
+            puts "Tie! It's like kissing your sister."
+        end
         break
       end
 
@@ -111,6 +120,7 @@ class Round
 
   def declare_winner(x_or_o_int)
     winner = X_O_CONVERSION[@player1.x_o] == x_or_o_int ? @player1 : @player2
+    winner.wins += 1
     puts "#{winner.name} wins!"
     @game_over = true
   end
@@ -165,7 +175,7 @@ end
 # board object with rows and columns?
 class Game
   attr_reader :player1, :player2
-
+  
   def initialize
     puts "\nTic-Tac-Toe! - A Ruby project by Justin Canzoentta \n\n"
     @player1 = Player1.new
@@ -185,12 +195,14 @@ end
 # player superclass
 class Player1
   attr_reader :name, :x_o
+  attr_accessor :wins #there's gotta be a better way that doens't make this public
 
   def initialize
     print 'Player 1, enter name: '
     @name = gets.chomp # Will change to gets.chomp
     print 'Will you be X or O?  '
     @x_o = x_o_check # will change to gets.chomp
+    @wins = 0
   end
 
   def x_o_check
@@ -209,6 +221,7 @@ class Player2 < Player1
     print 'Player 2, enter name: '
     @name = gets.chomp # Will change to gets.chomp
     @x_o = other_x_o == 'X' ? 'O' : 'X'
+    @wins = 0
   end
 end
 
