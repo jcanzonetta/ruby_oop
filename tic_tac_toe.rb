@@ -83,7 +83,22 @@ class Round
             self.test_for_tie
         end
 
-        
+        print "\nPlay again? (y/n)"
+
+        loop do
+            
+            new_game = gets.chomp.downcase
+            
+            if new_game == "y" || new_game == "yes"
+                game = Game.new
+                break
+            elsif new_game == "n" || new_game == "no"
+                break
+            end
+
+            print "Invalid input, please enter (y/n or yes/no)."
+
+        end
     end
 
     def test_for_winner
