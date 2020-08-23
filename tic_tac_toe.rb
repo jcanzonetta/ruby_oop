@@ -210,7 +210,14 @@ class Game
         @player1 = Player1.new
         @player2 = Player2.new(@player1.x_o)
 
+        self.announce
+
         @round = Round.new(@board, @player1, @player2)
+    end
+
+    def announce
+        puts "\n#{player1.name} will be playing as #{player1.x_o}'s."
+        puts "#{player2.name} will be playing as #{player2.x_o}'s."
     end
 end
 
@@ -219,20 +226,31 @@ class Player1
     attr_reader :name, :x_o
 
     def initialize
-        print "What's your name?  "
-        puts @name = "Justin" # Will change to gets.chomp
+        print "Player 1, enter name: "
+        @name = gets.chomp # Will change to gets.chomp
         print "Will you be X or O?  "
-        puts @x_o = "X" # will change to gets.chomp
+        @x_o = self.x_o_check # will change to gets.chomp
     end
+
+    def x_o_check
+        loop do
+            input = gets.chomp.upcase
+
+            if input == "X" || input == "O"
+                return input
+            end
+
+            puts "Please enter X or O."
+        end
+    end      
 end
 
 class Player2 < Player1
 
     def initialize(other_x_o)
-        print "Who will be player 2? "
-        @name = "Karina" # Will change to gets.chomp
+        print "Player 2, enter name: "
+        @name = gets.chomp # Will change to gets.chomp
         other_x_o == "X" ? @x_o = "O" : @x_o = "X"
-        puts "#{@name} will be playing as #{x_o}'s."
     end
 
 
