@@ -11,40 +11,35 @@ module INPUT
         print "\n #{array}"
         return array
     end
-end
 
+    def get_number
+        
+        num = gets.chomp.to_i
+        
+        until num > 1 do
+            print "\nPlease enter a whole number greater than 1: "
+            num = gets.chomp.to_i
+        end
 
-
-# Defines the qualities of an individual peg.
-class Peg
-    def initialize
-
+        return num
     end
 
 end
-
 
 # Defines the number of pegs and colors
 class GameBoard
     attr_reader :holes, :colors, :turns
     
-    def initialize(holes, colors, turns)
+    def initialize(holes, colors, turns, code)
         @holes = holes
         @colors = colors
         @turns = turns
         @field = create_field()
-        @code = self.get_code
+        @code = code
     end
 
     def create_field
         return Array.new(@turns, Array.new(@holes, 0))
-    end
-
-    # ask the user for the code they will answer
-    def get_code
-        print "Enter the code you will use for the answer"
-        puts "[1, 2, 3, 4] will be used for testing"
-        return [1, 2, 3, 4]
     end
 
     def play_round(current_guess)
@@ -90,7 +85,9 @@ class GameBoard
 end
 
 # Defines the 1st Player (code breaker)
-class Player1
+class Player
+    attr_reader :codebreaker
+    
     def initialize(codebreaker)
         @codebreaker = codebreaker
         @name = self.get_name
@@ -99,18 +96,21 @@ class Player1
     end
 
     def get_name
-        print 'Player 1 (Codebreaker), enter name: '
+        print 'Please enter your name: '
+        puts "It'll be Justin for testing."
         return "Justin"#gets.chomp # Will change to gets.chomp
     end
 
 end
 
 # Defines the 2nd Player (code maker)
-class Player2 < Player1
+class Computer
     
-    def initialize
+    def initialize(codebreaker)
         print 'Player 2 (Mastermind?), enter name: '
         puts @name = "Computer for now"
+        
+        @codebreaker = codebreaker == true ? false : true
     end
 
 
@@ -120,13 +120,16 @@ end
 class Game
     include INPUT
     
-    attr_reader :player1, :player2
+    attr_reader :player, :computer
     
     def initialize
         puts "\nMastermind! - A Ruby project by Justin Canzoentta \n\n"
-        @player1 = Player1.new(determine_codebreaker)
-        @player2 = Player2.new
-        @board = GameBoard.new(self.holes, self.colors, self.turns)
+        @player = Player.new(determine_codebreaker)
+        @computer = Computer.new(@player.codebreaker)
+        holes = self.get_holes
+        colors = self.get_colors
+        @board = GameBoard.new(holes, colors, self.get_turns, self.get_code(holes, colors))
+        
         @game_over = false
 
         #main game loop
@@ -144,15 +147,32 @@ class Game
                 puts "\n\nGame over, you ran out of turns. Better luck next time."
                 print "\n The code was #{@board.show_answer(@game_over)} \n\n"
             end
-
-            # render code row and results matrix
-
-            # check if there are any remaining turns -> show code if over
         end
 
         # ask to initialize a new game
 
     end
+
+    def get_code(holes, colors)
+        if @player.codebreaker == true
+            print "Enter the code you will use for the answer"
+            puts "[1, 2, 3, 4] will be used for testing"
+            return [1, 2, 3, 4]
+        else
+            return self.computer_generate_code(holes, colors)
+        end
+    end
+
+    def computer_generate_code(holes, colors)
+        prng = Random.new()
+        code = []
+        holes.times do
+            code.push(prng.rand(colors))
+        end
+        p code
+        return code
+    end
+
 
     def determine_codebreaker
         print "Would you like to play as the codebreaker? (y/n)"
@@ -179,22 +199,19 @@ class Game
         return self.enter_array
     end
 
-    def holes
+    def get_holes
         print "How many holes do you want? "
-        puts "4 will be used for testing"
-        return 4
+        return self.get_number
     end
 
-    def colors
+    def get_colors
         print "How many \"colors\"? "
-        puts "6 will be used for teting"
-        return 6
+        return self.get_number
     end
 
-    def turns
+    def get_turns
         print "How many turns? "
-        puts "12 will be used for testing"
-        return 5
+        return self.get_number
     end
 
 end
