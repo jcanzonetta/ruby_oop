@@ -1,9 +1,9 @@
 
 module INPUT
-    def enter_array
+    def enter_code_array(holes)
         array = []
         
-        for i in 1..@board.holes do 
+        for i in 1..holes do 
             print "\nEnter slot #{i}: "
             user_guess = gets.chomp
             array.push(user_guess.to_i)
@@ -68,7 +68,7 @@ class GameBoard
             #check if number exists
             if reduced_code.include?(number)
                 #check if number is in the correct position ? 
-                if index == @code[index]
+                if number == @code[index]
                     hint.push(2)
                 else
                     hint.push(1)
@@ -132,7 +132,46 @@ class Game
         
         @game_over = false
 
-        #main game loop
+        if @player.codebreaker == true
+            self.human_game_loop
+        else
+            self.computer_game_loop
+        end
+
+
+        # ask to initialize a new game
+
+    end
+
+    def computer_game_loop
+        until @game_over == true do
+            # query and place pieces
+            current_guess = self.computer_guess
+            # check if any pieces are correct -> end game if winner, else give hint and decrement turns
+            if @board.play_round(current_guess) == true
+                @game_over = true
+            elsif @board.turns > 0
+                @game_over = false
+                print @board.give_code_hint(current_guess)
+            else
+                @game_over = true
+                puts "\n\nGame over, you ran out of turns. Better luck next time."
+                print "\n The code was #{@board.show_answer(@game_over)} \n\n"
+            end
+        end
+    end
+
+    def computer_guess
+        array = []
+        @board.holes.times do 
+            array.push(rand(1..@board.colors))
+        end
+
+        return array
+    end
+
+    # main game loop for human codebreaker
+    def human_game_loop
         until @game_over == true do
             # query and place pieces
             current_guess = self.guess
@@ -148,26 +187,22 @@ class Game
                 print "\n The code was #{@board.show_answer(@game_over)} \n\n"
             end
         end
-
-        # ask to initialize a new game
-
     end
+
 
     def get_code(holes, colors)
         if @player.codebreaker == true
-            print "Enter the code you will use for the answer"
-            puts "[1, 2, 3, 4] will be used for testing"
-            return [1, 2, 3, 4]
-        else
             return self.computer_generate_code(holes, colors)
+        else
+            print "Enter the code you want the computer to try and break:"
+            return self.enter_code_array(holes)
         end
     end
 
     def computer_generate_code(holes, colors)
-        prng = Random.new()
         code = []
         holes.times do
-            code.push(prng.rand(colors))
+            code.push(rand(1..colors))
         end
         p code
         return code
@@ -175,7 +210,7 @@ class Game
 
 
     def determine_codebreaker
-        print "Would you like to play as the codebreaker? (y/n)"
+        print "Would you like to break the code? (y/n)"
         codebreaker = gets.chomp.downcase
         until codebreaker == "yes" || codebreaker == "no" || codebreaker == "y" || codebreaker == "n" do
             print "\n Incorrect input. (enter yes/no or y/n)"
@@ -196,7 +231,7 @@ class Game
     # ask the user what their guess is
     def guess
         puts "\nWhat'll it be? Enter from left to right."
-        return self.enter_array
+        return self.enter_code_array
     end
 
     def get_holes
